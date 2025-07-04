@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Создать пост</title>
+</head>
+<body>
+<h1>Создать новый пост</h1>
+<form id="postForm">
+    <textarea id="content" rows="10" cols="50" placeholder="Введите текст поста"></textarea><br/>
+    <button type="submit">Создать</button>
+</form>
+
+<script>
+    const form = document.getElementById('postForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const content = document.getElementById('content').value.trim();
+      if (!content) {
+        alert('Введите текст поста');
+        return;
+      }
+
+      try {
+        const response = await fetch('/createpost', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content })
+        });
+
+        if (!response.ok) {
+          throw new Error('Ошибка создания поста');
+        }
+
+        const data = await response.json();
+        // Предполагаем, что бек возвращает { link: "/post/{hash}" }
+        window.location.href = data.link;
+
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+</script>
+</body>
+</html>
