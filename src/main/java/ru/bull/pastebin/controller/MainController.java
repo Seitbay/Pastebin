@@ -10,6 +10,8 @@ import ru.bull.pastebin.model.Post;
 import ru.bull.pastebin.model.Post;
 import ru.bull.pastebin.service.PostService;
 
+import java.util.Optional;
+
 @Controller
 public class MainController {
     private final PostService postService;
@@ -26,7 +28,15 @@ public class MainController {
 
     @GetMapping("/post/{hash}")
     public String getPost(@PathVariable String hash, Model model){
-        // todo add finding post
+        Optional<String> postText = postService.getPost(hash);
+
+        if (postText.isPresent()) {
+            model.addAttribute("content", postText.get());
+            model.addAttribute("notFound", false);
+        } else {
+            model.addAttribute("notFound", true);
+        }
+
         return "post";
     }
 

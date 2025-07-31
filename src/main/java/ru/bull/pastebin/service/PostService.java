@@ -1,7 +1,9 @@
 package ru.bull.pastebin.service;
 
 
+import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.cloud.FirestoreClient;
@@ -12,6 +14,7 @@ import ru.bull.pastebin.repository.PostRepository;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class PostService {
@@ -39,6 +42,30 @@ public class PostService {
             post.setLink(firestorePath);
 
             return postRepo.save(post);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при создании поста", e);
+        }
+    }
+
+    public Optional<String> getPost(String hash) {
+        try {
+            Post post = postRepo.findByHash(hash);
+            if(post==null){
+                return Optional.empty();
+            }
+            Firestore db = FirestoreClient.getFirestore();
+            String firestorePath = "posts/" + hash;
+            DocumentReference docRef = db.document(firestorePath);
+            ApiFuture<DocumentSnapshot> future = docRef.get();
+            DocumentSnapshot document = future.get();
+
+            if (document.exists()) {
+                String content = document.getString("content");
+                return (content != null && !content.trim().isEmpty()) ? Optional.of(content) : Optional.empty();
+            } else {
+                return Optional.empty();
+            }
 
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при создании поста", e);

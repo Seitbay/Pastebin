@@ -2,10 +2,11 @@ package ru.bull.pastebin.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.Setter;
 
 
-@Data
+
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -19,4 +20,15 @@ public class Post {
     @Column(nullable = false, unique = true)
     private String link;
 
+    public String getHash() {
+        return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
 }
